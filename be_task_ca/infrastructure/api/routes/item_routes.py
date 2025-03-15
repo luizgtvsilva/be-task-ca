@@ -4,7 +4,7 @@ from be_task_ca.domain.item.repositories import ItemRepository
 from be_task_ca.application.item.usecases import create_item, get_all
 from be_task_ca.application.dto.item_dto import CreateItemRequest, CreateItemResponse
 from be_task_ca.infrastructure.factory import get_item_repository
-from be_task_ca.config import REPOSITORY_TYPE
+from be_task_ca.config import get_repository_type
 
 item_router = APIRouter(
     prefix="/items",
@@ -12,7 +12,8 @@ item_router = APIRouter(
 )
 
 def get_item_repo(request: Request) -> ItemRepository:
-    if REPOSITORY_TYPE == "sql":
+    repo_type = get_repository_type()
+    if repo_type == "sql":
         return get_item_repository("sql", request.state.db)
     return get_item_repository("memory")
 

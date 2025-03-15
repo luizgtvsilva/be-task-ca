@@ -6,20 +6,23 @@ from be_task_ca.domain.item.repositories import ItemRepository
 from be_task_ca.application.user.usecases import add_item_to_cart, create_user, list_items_in_cart
 from be_task_ca.application.dto.user_dto import AddToCartRequest, CreateUserRequest
 from be_task_ca.infrastructure.factory import get_user_repository, get_item_repository
-from be_task_ca.config import REPOSITORY_TYPE
+from be_task_ca.config import get_repository_type
 
 user_router = APIRouter(
     prefix="/users",
     tags=["user"],
 )
 
+
 def get_user_repo(request: Request) -> UserRepository:
-    if REPOSITORY_TYPE == "sql":
+    repo_type = get_repository_type()
+    if repo_type == "sql":
         return get_user_repository("sql", request.state.db)
     return get_user_repository("memory")
 
 def get_item_repo(request: Request) -> ItemRepository:
-    if REPOSITORY_TYPE == "sql":
+    repo_type = get_repository_type()
+    if repo_type == "sql":
         return get_item_repository("sql", request.state.db)
     return get_item_repository("memory")
 
