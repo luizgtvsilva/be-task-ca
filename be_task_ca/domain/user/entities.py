@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 import uuid
 from datetime import datetime
@@ -13,7 +13,7 @@ class CartItem:
 
 @dataclass
 class User:
-    id: uuid.UUID = uuid.uuid4()
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
     email: str = None
     first_name: str = None
     last_name: str = None
