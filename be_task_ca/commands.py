@@ -1,10 +1,7 @@
-from .database import engine, Base
+from be_task_ca.infrastructure.database.config import engine, Base
 
-# just importing all the models is enough to have them created
-# flake8: noqa
-from .user.model import User, CartItem
-from .item.model import Item
-
+from be_task_ca.infrastructure.database.models.user_model import UserModel, CartItemModel
+from be_task_ca.infrastructure.database.models.item_model import ItemModel
 
 def create_db_schema():
     Base.metadata.create_all(bind=engine)

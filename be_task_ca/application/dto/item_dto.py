@@ -1,18 +1,15 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel
 
-
 class CreateItemRequest(BaseModel):
     name: str
-    description: str | None = None
+    description: Optional[str] = None
     price: float
     quantity: int
-
 
 class CreateItemResponse(CreateItemRequest):
     id: UUID
 
-
-class AllItemsRepsonse(BaseModel):
+class AllItemsResponse(BaseModel):
     items: List[CreateItemResponse]

@@ -1,15 +1,12 @@
 from fastapi import FastAPI, Request, Response
-from .user.api import user_router
-from .item.api import item_router
-from be_task_ca.user import model
 
-from .database import SessionLocal, engine
-
+from be_task_ca.infrastructure.api.routes.user_routes import user_router
+from be_task_ca.infrastructure.api.routes.item_routes import item_router
+from be_task_ca.infrastructure.database.config import SessionLocal, engine
 
 app = FastAPI()
 app.include_router(user_router)
 app.include_router(item_router)
-
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
@@ -21,9 +18,8 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db.close()
     return response
 
-
 @app.get("/")
 async def root():
     return {
         "message": "Thanks for shopping at Nile!"
-    }  # the Nile is 250km longer than the Amazon
+    }
