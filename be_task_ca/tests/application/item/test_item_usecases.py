@@ -23,24 +23,20 @@ def test_create_item_success(item_repository):
         quantity=5
     )
 
-    # Act
     response = create_item(item_request, item_repository)
 
-    # Assert
     assert response.id is not None
     assert response.name == "Test Item"
     assert response.description == "This is a test item"
     assert response.price == 10.99
     assert response.quantity == 5
 
-    # Verify item was saved to repository
     saved_item = item_repository.find_item_by_name("Test Item")
     assert saved_item is not None
     assert saved_item.price == 10.99
 
 
 def test_create_item_duplicate_name(item_repository):
-    # Arrange
     item_request = CreateItemRequest(
         name="Test Item",
         description="This is a test item",
@@ -56,7 +52,6 @@ def test_create_item_duplicate_name(item_repository):
         quantity=10
     )
 
-    # Act & Assert
     with pytest.raises(HTTPException) as excinfo:
         create_item(duplicate_request, item_repository)
 
@@ -65,15 +60,12 @@ def test_create_item_duplicate_name(item_repository):
 
 
 def test_get_all_items_empty(item_repository):
-    # Act
     response = get_all(item_repository)
 
-    # Assert
     assert len(response.items) == 0
 
 
 def test_get_all_items_with_items(item_repository):
-    # Arrange
     items = [
         CreateItemRequest(name="Item 1", description="Description 1", price=10.0, quantity=5),
         CreateItemRequest(name="Item 2", description="Description 2", price=20.0, quantity=10),
@@ -83,7 +75,6 @@ def test_get_all_items_with_items(item_repository):
     for item_request in items:
         create_item(item_request, item_repository)
 
-    # Act
     response = get_all(item_repository)
 
     # Assert
@@ -93,7 +84,6 @@ def test_get_all_items_with_items(item_repository):
 
 
 def test_model_to_schema_conversion():
-    # Arrange
     item_id = uuid.uuid4()
     item = Item(
         id=item_id,
@@ -103,10 +93,8 @@ def test_model_to_schema_conversion():
         quantity=7
     )
 
-    # Act
     schema = model_to_schema(item)
 
-    # Assert
     assert schema.id == item_id
     assert schema.name == "Test Item"
     assert schema.description == "Test Description"

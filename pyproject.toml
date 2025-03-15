@@ -26,6 +26,7 @@ flake8-pyproject = "^1.2.3"
 cohesion = "^1.1.0"
 black = "^23.3.0"
 mypy = "^1.2.0"
+httpx = "0.23.0"
 
 [build-system]
 requires = ["poetry-core"]

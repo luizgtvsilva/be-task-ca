@@ -1,4 +1,3 @@
-# tests/application/user/test_user_usecases.py
 import pytest
 import uuid
 from fastapi import HTTPException
@@ -51,17 +50,14 @@ def sample_item(item_repository):
 
 
 def test_create_user_success(user_repository, sample_user_request):
-    # Act
     response = create_user(sample_user_request, user_repository)
 
-    # Assert
     assert response.id is not None
     assert response.first_name == "John"
     assert response.last_name == "Doe"
     assert response.email == "john.doe@example.com"
     assert response.shipping_address == "123 Main St"
 
-    # Verify user was saved to repository
     saved_user = user_repository.find_user_by_email("john.doe@example.com")
     assert saved_user is not None
     assert saved_user.first_name == "John"
@@ -69,10 +65,8 @@ def test_create_user_success(user_repository, sample_user_request):
 
 
 def test_create_user_duplicate_email(user_repository, sample_user_request):
-    # Arrange
     create_user(sample_user_request, user_repository)  # Create first user
 
-    # Create another user with the same email
     duplicate_request = CreateUserRequest(
         first_name="Jane",
         last_name="Smith",
@@ -81,7 +75,6 @@ def test_create_user_duplicate_email(user_repository, sample_user_request):
         shipping_address="456 Oak St"
     )
 
-    # Act & Assert
     with pytest.raises(HTTPException) as excinfo:
         create_user(duplicate_request, user_repository)
 
@@ -90,22 +83,18 @@ def test_create_user_duplicate_email(user_repository, sample_user_request):
 
 
 def test_add_item_to_cart_success(user_repository, item_repository, sample_user_request, sample_item):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
     cart_request = AddToCartRequest(
         item_id=sample_item.id,
         quantity=2
     )
 
-    # Act
     response = add_item_to_cart(user_response.id, cart_request, user_repository, item_repository)
 
-    # Assert
     assert len(response.items) == 1
     assert response.items[0].item_id == sample_item.id
     assert response.items[0].quantity == 2
 
-    # Verify cart item was saved to repository
     user = user_repository.find_user_by_id(user_response.id)
     assert len(user.cart_items) == 1
     assert user.cart_items[0].item_id == sample_item.id
@@ -113,14 +102,12 @@ def test_add_item_to_cart_success(user_repository, item_repository, sample_user_
 
 
 def test_add_item_to_cart_user_not_found(user_repository, item_repository, sample_item):
-    # Arrange
     random_user_id = uuid.uuid4()
     cart_request = AddToCartRequest(
         item_id=sample_item.id,
         quantity=2
     )
 
-    # Act & Assert
     with pytest.raises(HTTPException) as excinfo:
         add_item_to_cart(random_user_id, cart_request, user_repository, item_repository)
 
@@ -129,7 +116,6 @@ def test_add_item_to_cart_user_not_found(user_repository, item_repository, sampl
 
 
 def test_add_item_to_cart_item_not_found(user_repository, item_repository, sample_user_request):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
     random_item_id = uuid.uuid4()
     cart_request = AddToCartRequest(
@@ -137,7 +123,6 @@ def test_add_item_to_cart_item_not_found(user_repository, item_repository, sampl
         quantity=2
     )
 
-    # Act & Assert
     with pytest.raises(HTTPException) as excinfo:
         add_item_to_cart(user_response.id, cart_request, user_repository, item_repository)
 
@@ -146,14 +131,12 @@ def test_add_item_to_cart_item_not_found(user_repository, item_repository, sampl
 
 
 def test_add_item_to_cart_insufficient_quantity(user_repository, item_repository, sample_user_request, sample_item):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
     cart_request = AddToCartRequest(
         item_id=sample_item.id,
         quantity=sample_item.quantity + 1  # Request more than available
     )
 
-    # Act & Assert
     with pytest.raises(HTTPException) as excinfo:
         add_item_to_cart(user_response.id, cart_request, user_repository, item_repository)
 
@@ -162,14 +145,12 @@ def test_add_item_to_cart_insufficient_quantity(user_repository, item_repository
 
 
 def test_add_item_to_cart_already_in_cart(user_repository, item_repository, sample_user_request, sample_item):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
     cart_request = AddToCartRequest(
         item_id=sample_item.id,
         quantity=2
     )
 
-    # Add item to cart first time
     add_item_to_cart(user_response.id, cart_request, user_repository, item_repository)
 
     # Try to add same item again
@@ -182,21 +163,16 @@ def test_add_item_to_cart_already_in_cart(user_repository, item_repository, samp
 
 
 def test_list_items_in_cart_empty(user_repository, sample_user_request):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
 
-    # Act
     response = list_items_in_cart(user_response.id, user_repository)
 
-    # Assert
     assert len(response.items) == 0
 
 
 def test_list_items_in_cart_with_items(user_repository, item_repository, sample_user_request, sample_item):
-    # Arrange
     user_response = create_user(sample_user_request, user_repository)
 
-    # Create another item
     second_item = Item(
         name="Second Item",
         description="This is another test item",
@@ -205,7 +181,6 @@ def test_list_items_in_cart_with_items(user_repository, item_repository, sample_
     )
     item_repository.save_item(second_item)
 
-    # Add items to cart
     add_item_to_cart(
         user_response.id,
         AddToCartRequest(item_id=sample_item.id, quantity=2),
@@ -219,23 +194,19 @@ def test_list_items_in_cart_with_items(user_repository, item_repository, sample_
     user.cart_items.append(cart_item)
     user_repository.save_user(user)
 
-    # Act
     response = list_items_in_cart(user_response.id, user_repository)
 
-    # Assert
     assert len(response.items) == 2
     item_ids = {item.item_id for item in response.items}
     assert sample_item.id in item_ids
     assert second_item.id in item_ids
 
-    # Check quantities
     quantities = {item.quantity for item in response.items}
     assert 2 in quantities
     assert 3 in quantities
 
 
 def test_cart_item_model_to_schema():
-    # Arrange
     item_id = uuid.uuid4()
     user_id = uuid.uuid4()
     cart_item = CartItem(
@@ -244,9 +215,7 @@ def test_cart_item_model_to_schema():
         quantity=4
     )
 
-    # Act
     schema = cart_item_model_to_schema(cart_item)
 
-    # Assert
     assert schema.item_id == item_id
     assert schema.quantity == 4
