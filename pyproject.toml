@@ -31,13 +31,15 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start = "scripts:start"
+start = "scripts:cli_start"
 schema = "be_task_ca.commands:create_db_schema"
 graph = "scripts:create_dependency_graph"
 tests = "scripts:run_tests"
 lint = "scripts:run_linter"
 format = "scripts:auto_format"
 typing = "scripts:check_types"
+memory = "scripts:use_memory_db"
+sql = "scripts:use_postgres_db"
 
 [tool.flake8]
 per-file-ignores = [
